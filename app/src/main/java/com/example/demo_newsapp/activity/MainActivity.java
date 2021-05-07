@@ -1,5 +1,19 @@
 package com.example.demo_newsapp.activity;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.AdapterView;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,33 +22,22 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.example.demo_newsapp.R;
-import com.example.demo_newsapp.entity.Title;
 import com.example.demo_newsapp.adapter.TitleAdapter;
+import com.example.demo_newsapp.entity.Title;
+import com.example.demo_newsapp.gson.ApiResponse;
 import com.example.demo_newsapp.gson.News;
-import com.example.demo_newsapp.gson.NewsList;
 import com.example.demo_newsapp.utils.HttpUtil;
-import com.example.demo_newsapp.utils.Utility;
 import com.google.android.material.navigation.NavigationView;
+import com.google.gson.Gson;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.datatype.BmobQueryResult;
@@ -80,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         //Disappear Status Bar
         Intent intent = getIntent();
         user_objectId = intent.getStringExtra("user_objectId");  //Key variety
@@ -144,17 +147,19 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {    //
                 Toast.makeText(MainActivity.this, "Clicked the change password button", Toast.LENGTH_SHORT).show();
-                intent.putExtra("user_objectId1",user_objectId);
+                intent.putExtra("user_objectId1", user_objectId);
+
                 startActivity(intent);
             }
         });
 
         imageView_btn_about.setOnClickListener(new View.OnClickListener() {
             Intent intent = new Intent(MainActivity.this, UserInfosActivity.class);
+
             @Override
             public void onClick(View view) {    //
                 Toast.makeText(MainActivity.this, "Clicked Search & Edit user information button", Toast.LENGTH_SHORT).show();
-                intent.putExtra("user_objectId",user_objectId);
+                intent.putExtra("user_objectId", user_objectId);
                 startActivity(intent);
 
             }
@@ -162,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
 
         imageView_btn_note.setOnClickListener(new View.OnClickListener() {
             Intent intent = new Intent(MainActivity.this, NoteInformationActivity.class);
+
             @Override
             public void onClick(View view) {    //
                 Toast.makeText(MainActivity.this, "Clicked the note button", Toast.LENGTH_SHORT).show();
@@ -273,12 +279,13 @@ public class MainActivity extends AppCompatActivity {
      * Request to process data (Key)
      */
     public void requestNew(int itemName) {
-
         // request and return data according ot the URL returned.
-        String address = response(itemName);    // key
+        // TODO: 2021/5/6 获取url更换
+        String address = getApiUrl(itemName);    // key
         HttpUtil.sendOkHttpRequest(address, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -288,18 +295,16 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String responseText = response.body().string();
-                final NewsList newlist = Utility.parseJsonWithGson(responseText);
-                final int code = newlist.code;
-                final String msg = newlist.msg;
-                if (code == 200) {
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                // TODO: 2021/5/6 解析替换
+                final ApiResponse apiResponse = new Gson().fromJson(Objects.requireNonNull(response.body()).string(), ApiResponse.class);
+                if (TextUtils.equals(apiResponse.getStatus(), "ok")) {
                     titleList.clear();
-                    for (News news : newlist.newsList) {
+                    for (News news : apiResponse.getNewsList()) {
                         String user_objectId = getIntent().getStringExtra("user_objectId");
-                        String url = news.url;
-                        String href = url + "?" + user_objectId;
-                        Title title = new Title(news.title, news.description, news.picUrl, news.url, user_objectId, href);
+                        String url = news.getUrl();
+                        String href = url + "?" + user_objectId + "&id=" + news.getSource().getId() + "&name=" + news.getSource().getName();
+                        Title title = new Title(news.getTitle(), news.getDescription(), news.getUrlToImage(), news.getUrl(), user_objectId, href);
                         titleList.add(title);
                     }
 
@@ -311,11 +316,11 @@ public class MainActivity extends AppCompatActivity {
                             refreshLayout.setRefreshing(false);
                         }
                     });
-                } else {
+                } else if (TextUtils.equals(apiResponse.getStatus(), "ok")) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(MainActivity.this, "Data Return Error", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MainActivity.this, apiResponse.getMessage(), Toast.LENGTH_SHORT).show();
                             refreshLayout.setRefreshing(false);
                         }
                     });
@@ -327,65 +332,68 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Return correct URL according to different type.
      */
-    private String response(int itemName) {
-        String address = "https://api.tianapi.com/social/?key=97ede4639341c794a6a476c75786da22&num=10&rand=1";
+    private String getApiUrl(int itemName) {
+        // TODO: 2021/5/6 api的网络连接，修改和替换
+        StringBuilder url = new StringBuilder("https://newsapi.org/v2/everything?q=");
         switch (itemName) {
             case ITEM_SOCIETY:
+                url.append("society");
                 break;
             case ITEM_COUNTY:
-                address = address.replaceAll("social", "guonei");
+                url.append("US");
                 break;
             case ITEM_INTERNATION:
-                address = address.replaceAll("social", "world");
+                url.append("international");
                 break;
             case ITEM_FUN:
-                address = address.replaceAll("social", "huabian");
+                url.append("funny");
                 break;
             case ITEM_SPORT:
-                address = address.replaceAll("social", "tiyu");
+                url.append("sport");
                 break;
             case ITEM_NBA:
-                address = address.replaceAll("social", "nba");
+                url.append("nba");
                 break;
             case ITEM_FOOTBALL:
-                address = address.replaceAll("social", "football");
+                url.append("football");
                 break;
             case ITEM_TECHNOLOGY:
-                address = address.replaceAll("social", "keji");
+                url.append("technology");
                 break;
             case ITEM_WORK:
-                address = address.replaceAll("social", "startup");
+                url.append("work");
                 break;
             case ITEM_APPLE:
-                address = address.replaceAll("social", "apple");
+                url.append("apple");
                 break;
             case ITEM_WAR:
-                address = address.replaceAll("social", "military");
+                url.append("warfare");
                 break;
             case ITEM_INTERNET:
-                address = address.replaceAll("social", "mobile");
+                url.append("internet");
                 break;
             case ITEM_TREVAL:
-                address = address.replaceAll("social", "travel");
+                url.append("travel");
                 break;
             case ITEM_HEALTH:
-                address = address.replaceAll("social", "health");
+                url.append("health");
                 break;
             case ITEM_STRANGE:
-                address = address.replaceAll("social", "qiwen");
+                url.append("anecdote");
                 break;
             case ITEM_LOOKER:
-                address = address.replaceAll("social", "meinv");
+                url.append("Chinese");
                 break;
             case ITEM_VR:
-                address = address.replaceAll("social", "vr");
+                url.append("VR");
                 break;
             case ITEM_IT:
-                address = address.replaceAll("social", "it");
+                url.append("IT");
                 break;
             default:
         }
-        return address;
+        url.append("&from=&sortBy=publishedAt&apiKey=3744d4618d1a44b18dc9df3d52b5ee32&language=en&pageSize=100");
+        return url.toString();
     }
 
     /**
