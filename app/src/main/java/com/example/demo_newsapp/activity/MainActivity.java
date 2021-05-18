@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * judge if it is the current page, if not, request to manage the data.
+     * judge if it is the current page, if not, request to manage the com.example.demo_newsapp.data.
      */
     private void handleCurrentPage(String text, int item) {
         ActionBar actionBar = getSupportActionBar();
@@ -276,10 +276,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     /**
-     * Request to process data (Key)
+     * Request to process com.example.demo_newsapp.data (Key)
      */
     public void requestNew(int itemName) {
-        // request and return data according ot the URL returned.
+        // request and return com.example.demo_newsapp.data according ot the URL returned.
         // TODO: 2021/5/6 获取url更换
         String address = getApiUrl(itemName);    // key
         HttpUtil.sendOkHttpRequest(address, new Callback() {

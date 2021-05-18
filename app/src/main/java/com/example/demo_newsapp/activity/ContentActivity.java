@@ -145,7 +145,7 @@ public class ContentActivity extends AppCompatActivity {
     private void init_insert() {
         //Bmob Initialization
         Bmob.initialize(this, "988ae71f79851ac817431bee093c1279");
-        //Insert data to Title form
+        //Insert com.example.demo_newsapp.data to Title form
         Title temptitle = new Title(title, descr, imageUrl, uri, user_objectId, href);
         insertInfoToTableTitle(temptitle);
 

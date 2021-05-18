@@ -146,7 +146,7 @@ public class CollectNewsContentActivity extends AppCompatActivity {
     private void init_delete() {
         //Bmob initialization
         Bmob.initialize(this, "988ae71f79851ac817431bee093c1279");
-        //delete data to Title form
+        //delete com.example.demo_newsapp.data to Title form
         Title temptitle = new Title(title, descr, imageUrl, uri, user_objectId,href);
         deleteInfoToTableTitle(temptitle);
 

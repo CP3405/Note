@@ -8,13 +8,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -26,10 +22,9 @@ import com.example.demo_newsapp.R;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import data.dbHelper;
+import com.example.demo_newsapp.data.dbHelper;
 
 public class NoteInformationActivity extends Activity {
 
@@ -38,7 +33,7 @@ public class NoteInformationActivity extends Activity {
 
     private static String DB_NAME = "mydb";
     private ArrayList<Map<String, Object>> data;
-    private data.dbHelper dbHelper;
+    private com.example.demo_newsapp.data.dbHelper dbHelper;
     private SQLiteDatabase db;
     private Cursor cursor;
     private SimpleAdapter listAdapter;
@@ -112,7 +107,7 @@ public class NoteInformationActivity extends Activity {
     protected void dbDel() {
         AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder(this);
         alertdialogbuilder.setTitle("HINT");
-        alertdialogbuilder.setMessage("Are you sure you want to delete this data?");
+        alertdialogbuilder.setMessage("Are you sure you want to delete this com.example.demo_newsapp.data?");
         alertdialogbuilder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {

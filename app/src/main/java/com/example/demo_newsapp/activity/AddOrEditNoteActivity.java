@@ -18,7 +18,7 @@ import com.example.demo_newsapp.R;
 
 import java.util.Map;
 
-import data.dbHelper;
+import com.example.demo_newsapp.data.dbHelper;
 
 public class AddOrEditNoteActivity extends Activity {
 
@@ -32,7 +32,7 @@ public class AddOrEditNoteActivity extends Activity {
     private Button addBtn;
 
     private static String DB_NAME = "mydb";
-    private data.dbHelper dbHelper;
+    private com.example.demo_newsapp.data.dbHelper dbHelper;
     private SQLiteDatabase db;
 
     private String selId;
