@@ -172,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {    //
                 Toast.makeText(MainActivity.this, "Clicked the note button", Toast.LENGTH_SHORT).show();
                 intent.putExtra("user_objectId", user_objectId);
+                intent.putExtra("username",username);
                 startActivity(intent);
             }
         });

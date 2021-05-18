@@ -107,5 +107,4 @@ public class LoginAndRegistActivity extends AppCompatActivity implements View.On
             }
         });
     }*/
-
 }

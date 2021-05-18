@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
@@ -13,12 +14,13 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.example.demo_newsapp.R;
-
 import java.util.Map;
-
 import com.example.demo_newsapp.data.dbHelper;
+
+import cn.bmob.v3.Bmob;
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.SaveListener;
 
 public class AddOrEditNoteActivity extends Activity {
 
@@ -30,6 +32,7 @@ public class AddOrEditNoteActivity extends Activity {
     private EditText et_ar;
     private EditText et_pr;
     private Button addBtn;
+    private String username;
 
     private static String DB_NAME = "mydb";
     private com.example.demo_newsapp.data.dbHelper dbHelper;
@@ -56,15 +59,16 @@ public class AddOrEditNoteActivity extends Activity {
 
     private void init() {
 
+        Bmob.initialize(this,"988ae71f79851ac817431bee093c1279");
         mImgAdd = findViewById(R.id.imageView5);
         mImgBack = findViewById(R.id.imageView4);
         mTvTitle = findViewById(R.id.tv);
         addBtn = findViewById(R.id.addBtn);
-
         et_no = findViewById(R.id.et_no);
         et_name = findViewById(R.id.et_name);
         et_ar = findViewById(R.id.et_ar);
         et_pr = findViewById(R.id.et_pr);
+        username = getIntent().getStringExtra("username");
 
         if (listItem == null) {
             mTvTitle.setText("Add Note");
@@ -80,7 +84,6 @@ public class AddOrEditNoteActivity extends Activity {
         }
 
         mImgAdd.setVisibility(View.GONE);
-
 
         mImgBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,9 +105,7 @@ public class AddOrEditNoteActivity extends Activity {
         });
     }
 
-
     protected void dbAdd() {
-
         String bno = et_no.getText().toString().trim();
         String bname = et_name.getText().toString().trim();
         String bar = et_ar.getText().toString().trim();
@@ -116,7 +117,18 @@ public class AddOrEditNoteActivity extends Activity {
         }
 
         // TODO Auto-generated method stub
-        ContentValues values = new ContentValues();
+        Note note = new Note();
+        note.setUserName(username);
+        note.setTitle(bno);
+        note.setContent(bname);
+        note.setTime(bar);
+        note.setDate(bpr);
+        note.save(new SaveListener<String>() {
+            @Override
+            public void done(String s, BmobException e) {
+            }
+        });
+/*        ContentValues values = new ContentValues();
         values.put("bno", bno);
         values.put("bname", bname);
         values.put("bar", bar);
@@ -125,12 +137,11 @@ public class AddOrEditNoteActivity extends Activity {
         if (rowid == -1)
             Toast.makeText(this, "Fail to add!", Toast.LENGTH_SHORT).show();
         else
-            Toast.makeText(this, "Successfully added!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Successfully added!", Toast.LENGTH_SHORT).show();*/
         Intent intent = new Intent(AddOrEditNoteActivity.this, NoteInformationActivity.class);
         startActivity(intent);
         finish();
     }
-
 
     protected void dbUpdate() {
 

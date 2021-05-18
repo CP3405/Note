@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.os.Looper;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.AdapterView;
@@ -22,9 +23,15 @@ import com.example.demo_newsapp.R;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.example.demo_newsapp.data.dbHelper;
+
+import cn.bmob.v3.Bmob;
+import cn.bmob.v3.BmobQuery;
+import cn.bmob.v3.exception.BmobException;
+import cn.bmob.v3.listener.FindListener;
 
 public class NoteInformationActivity extends Activity {
 
@@ -32,16 +39,18 @@ public class NoteInformationActivity extends Activity {
     private TextView mTvTitle;
 
     private static String DB_NAME = "mydb";
-    private ArrayList<Map<String, Object>> data;
+    private ArrayList<Map<String, String>> data;
     private com.example.demo_newsapp.data.dbHelper dbHelper;
     private SQLiteDatabase db;
     private Cursor cursor;
     private SimpleAdapter listAdapter;
     private View view;
     private ListView listview;
-    private Map<String, Object> item;
+    private HashMap<String, String> item;
     private String selId;
     private ContentValues selCV;
+    private String username;
+    private List<Note> noteLists = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,15 +63,16 @@ public class NoteInformationActivity extends Activity {
         dbHelper = new dbHelper(this, DB_NAME, null, 1);
         db = dbHelper.getWritableDatabase();
         data = new ArrayList<>();
-
-
     }
+
     private void init() {
 
+        Bmob.initialize(this,"988ae71f79851ac817431bee093c1279");
         listview = findViewById(R.id.list_book);
         mImgAdd = findViewById(R.id.imageView5);
         mImgBack = findViewById(R.id.imageView4);
         mTvTitle = findViewById(R.id.tv);
+        username = getIntent().getStringExtra("username");
 
         mTvTitle.setText("Notes");
 
@@ -71,7 +81,9 @@ public class NoteInformationActivity extends Activity {
         mImgAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(NoteInformationActivity.this,AddOrEditNoteActivity.class));
+                Intent intent = new Intent(NoteInformationActivity.this,AddOrEditNoteActivity.class);
+                intent.putExtra("username",username);
+                startActivity(intent);
             }
         });
 
@@ -82,6 +94,7 @@ public class NoteInformationActivity extends Activity {
                 Map<String, Object> listItem = (Map<String, Object>) listview.getItemAtPosition(position);
                 Intent intent = new Intent(NoteInformationActivity.this,AddOrEditNoteActivity.class);
                 intent.putExtra("listItem", (Serializable) listItem);
+                intent.putExtra("username",username);
                 startActivity(intent);
             }
         });
@@ -102,7 +115,6 @@ public class NoteInformationActivity extends Activity {
         super.onResume();
         dbFindAll();
     }
-
 
     protected void dbDel() {
         AlertDialog.Builder alertdialogbuilder = new AlertDialog.Builder(this);
@@ -135,11 +147,30 @@ public class NoteInformationActivity extends Activity {
         listview.setAdapter(listAdapter);
     }
 
-
-
     protected void dbFindAll() {
         // TODO Auto-generated method stub
+        BmobQuery<Note> query = new BmobQuery<>();
+        query.addWhereEqualTo("UserName", username);
+        query.setLimit(50);
+        query.findObjects(new FindListener<Note>() {
+            @Override
+            public void done(List<Note> list, BmobException e) {
+                noteLists = list;
+            }
+        });
         data.clear();
+
+        for (Note note: noteLists){
+            item = new HashMap<String, String>();
+            item.put("bno", note.getTitle());
+            item.put("bname", note.getContent());
+            item.put("bar", note.getTime());
+            item.put("bpr", note.getDate());
+            data.add(item);
+        }
+        showList();
+
+/*        data.clear();
         cursor = db.query(dbHelper.TB_NAME, null, null, null, null, null, "_id ASC");
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
@@ -157,14 +188,13 @@ public class NoteInformationActivity extends Activity {
             data.add(item);
             cursor.moveToNext();
         }
-        cursor.close();
-        showList();
+        cursor.close();*/
     }
+
     public void onBackPressed() {
         Intent intent = new Intent();
         intent.setClass(NoteInformationActivity.this,MainActivity.class);
         startActivity(intent);
-
         NoteInformationActivity.this.finish();
     }
 }

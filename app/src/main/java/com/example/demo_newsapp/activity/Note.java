@@ -1,7 +1,5 @@
 package com.example.demo_newsapp.activity;
 
-import org.junit.Test;
-
 import java.util.Date;
 
 import cn.bmob.v3.BmobObject;
@@ -10,7 +8,8 @@ public class Note extends BmobObject {
     private String UserName;
     private String Title;
     private String Content;
-    private Date createdAt;
+    private String Time;
+    private String Date;
 
     public void setUserName(String UserName){
         this.UserName = UserName;
@@ -36,7 +35,19 @@ public class Note extends BmobObject {
         return Content;
     }
 
-    public Date getDate(){
-        return createdAt;
+    public void setTime(String Time){
+        this.Time = Time;
+    }
+
+    public String getTime(){
+        return Time;
+    }
+
+    public void setDate(String Date){
+        this.Date = Date;
+    }
+
+    public String getDate(){
+        return Date;
     }
 }
