@@ -56,6 +56,7 @@ public class AddOrEditNoteActivity extends Activity {
         db = dbHelper.getWritableDatabase();
 
         init();
+
     }
 
     private void init() {
@@ -168,6 +169,9 @@ public class AddOrEditNoteActivity extends Activity {
             public void done(BmobException e) {
             }
         });
+        Intent intent = new Intent(AddOrEditNoteActivity.this, NoteInformationActivity.class);
+        startActivity(intent);
+        finish();
 
 /*        ContentValues values = new ContentValues();
         values.put("bno", bno);
