@@ -32,6 +32,7 @@ import cn.bmob.v3.Bmob;
 import cn.bmob.v3.BmobQuery;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.FindListener;
+import cn.bmob.v3.listener.UpdateListener;
 
 public class NoteInformationActivity extends Activity {
 
@@ -103,7 +104,7 @@ public class NoteInformationActivity extends Activity {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 Map<String, String> listItem = (Map<String, String>) listview.getItemAtPosition(position);
-                //selId = (String) listItem.get("_id");
+                selId = (String) listItem.get("noteId");
                 dbDel();
                 return true;
             }
@@ -123,7 +124,14 @@ public class NoteInformationActivity extends Activity {
         alertdialogbuilder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                String where = "_id=" + selId;
+                Note note = new Note();
+                note.setObjectId(selId);
+                note.delete(new UpdateListener() {
+                    @Override
+                    public void done(BmobException e) {
+                    }
+                });
+                /*String where = "_id=" + selId;
                 int i = db.delete(dbHelper.TB_NAME, where, null);
                 if (i > 0){
                     Toast.makeText(NoteInformationActivity.this,"Deleted successfully!",Toast.LENGTH_SHORT).show();
@@ -131,7 +139,7 @@ public class NoteInformationActivity extends Activity {
                 }
                 else{
                     Toast.makeText(NoteInformationActivity.this,"Delete failed!",Toast.LENGTH_SHORT).show();
-                }
+                }*/
             }
         });
         alertdialogbuilder.setNeutralButton("Cancel", null);
