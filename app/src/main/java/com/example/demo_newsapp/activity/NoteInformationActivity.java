@@ -64,6 +64,7 @@ public class NoteInformationActivity extends Activity {
         dbHelper = new dbHelper(this, DB_NAME, null, 1);
         db = dbHelper.getWritableDatabase();
         data = new ArrayList<>();
+        dbFindAll();
     }
 
     private void init() {
@@ -74,11 +75,8 @@ public class NoteInformationActivity extends Activity {
         mImgBack = findViewById(R.id.imageView4);
         mTvTitle = findViewById(R.id.tv);
         username = getIntent().getStringExtra("username");
-
         mTvTitle.setText("Notes");
-
         mImgBack.setVisibility(View.GONE);
-
         mImgAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -110,6 +108,11 @@ public class NoteInformationActivity extends Activity {
             }
         });
     }
+/*    @Override
+    protected void onStart() {
+        super.onStart();
+        dbFindAll();
+    }*/
 
     @Override
     protected void onResume() {
@@ -145,7 +148,6 @@ public class NoteInformationActivity extends Activity {
         alertdialogbuilder.setNeutralButton("Cancel", null);
         AlertDialog alertdialog1 = alertdialogbuilder.create();
         alertdialog1.show();
-
     }
 
     private void showList() {
@@ -167,7 +169,6 @@ public class NoteInformationActivity extends Activity {
             }
         });
         data.clear();
-
         for (Note note: noteLists){
             item = new HashMap<String, String>();
             item.put("noteId", note.getObjectId());
@@ -203,6 +204,7 @@ public class NoteInformationActivity extends Activity {
     public void onBackPressed() {
         Intent intent = new Intent();
         intent.setClass(NoteInformationActivity.this,MainActivity.class);
+        intent.putExtra("username",username);
         startActivity(intent);
         NoteInformationActivity.this.finish();
     }

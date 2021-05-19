@@ -1,11 +1,9 @@
 package com.example.demo_newsapp.activity;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.WindowManager;
@@ -56,7 +54,6 @@ public class AddOrEditNoteActivity extends Activity {
         db = dbHelper.getWritableDatabase();
 
         init();
-
     }
 
     private void init() {
@@ -187,4 +184,5 @@ public class AddOrEditNoteActivity extends Activity {
             Toast.makeText(this, "Update failed!", Toast.LENGTH_SHORT).show();
         }*/
     }
+
 }

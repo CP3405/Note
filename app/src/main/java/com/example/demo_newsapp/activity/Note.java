@@ -1,7 +1,5 @@
 package com.example.demo_newsapp.activity;
 
-import java.util.Date;
-
 import cn.bmob.v3.BmobObject;
 
 public class Note extends BmobObject {
