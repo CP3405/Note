@@ -21,6 +21,7 @@ import com.example.demo_newsapp.data.dbHelper;
 import cn.bmob.v3.Bmob;
 import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.SaveListener;
+import cn.bmob.v3.listener.UpdateListener;
 
 public class AddOrEditNoteActivity extends Activity {
 
@@ -80,7 +81,7 @@ public class AddOrEditNoteActivity extends Activity {
             et_name.setText((String) listItem.get("bname"));
             et_ar.setText((String) listItem.get("bar"));
             et_pr.setText((String) listItem.get("bpr"));
-            selId = (String) listItem.get("_id");
+            selId = (String) listItem.get("noteId");
         }
 
         mImgAdd.setVisibility(View.GONE);
@@ -156,7 +157,19 @@ public class AddOrEditNoteActivity extends Activity {
         }
 
         // TODO Auto-generated method stub
-        ContentValues values = new ContentValues();
+        Note note = new Note();
+        note.setUserName(username);
+        note.setTitle(bno);
+        note.setContent(bname);
+        note.setTime(bar);
+        note.setDate(bpr);
+        note.update(selId, new UpdateListener() {
+            @Override
+            public void done(BmobException e) {
+            }
+        });
+
+/*        ContentValues values = new ContentValues();
         values.put("bno", bno);
         values.put("bname", bname);
         values.put("bar", bar);
@@ -168,6 +181,6 @@ public class AddOrEditNoteActivity extends Activity {
             finish();
         } else {
             Toast.makeText(this, "Update failed!", Toast.LENGTH_SHORT).show();
-        }
+        }*/
     }
 }

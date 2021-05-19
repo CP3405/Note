@@ -102,8 +102,8 @@ public class NoteInformationActivity extends Activity {
         listview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Map<String, Object> listItem = (Map<String, Object>) listview.getItemAtPosition(position);
-                selId = (String) listItem.get("_id");
+                Map<String, String> listItem = (Map<String, String>) listview.getItemAtPosition(position);
+                //selId = (String) listItem.get("_id");
                 dbDel();
                 return true;
             }
@@ -162,6 +162,7 @@ public class NoteInformationActivity extends Activity {
 
         for (Note note: noteLists){
             item = new HashMap<String, String>();
+            item.put("noteId", note.getObjectId());
             item.put("bno", note.getTitle());
             item.put("bname", note.getContent());
             item.put("bar", note.getTime());
